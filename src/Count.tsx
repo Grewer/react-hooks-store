@@ -4,7 +4,7 @@ console.log(Modal)
 
 export function Count(props) {
   const [state, dispatch] = Modal.useModal(['countReducer'])
-  console.log(state, dispatch)
+  console.warn('render Count',state, dispatch)
 
   return <div>
     <button onClick={() => dispatch({type: "ADD", payload: 2})}>+</button>

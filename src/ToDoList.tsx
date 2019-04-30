@@ -1,17 +1,19 @@
 import React, {useState} from 'react'
 import Modal from "./reducer";
 
-export default function TodoList() {
+function TodoList() {
   const [inp, setInp] = useState('')
-  const [state, dispatch] = Modal.useModal()
+  const [state, dispatch] = Modal.useModal(['listReducer'])
   console.warn('render todo List', state)
   return <>
     <input type="text" value={inp} onChange={ev => setInp(ev.target.value)}/>
     <ul>
       {
-        state.listReducer.map(v => <li>{v}</li>)
+        state.listReducer.map(v => <li key={v}>{v}</li>)
       }
     </ul>
     <button onClick={() => dispatch({type: "ADD_LIST", payload: inp})}>add list</button>
   </>
 }
+
+export default React.memo(TodoList)
