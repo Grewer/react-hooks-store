@@ -47,3 +47,104 @@ export function DeleteButton({index}) {
 }
 ```
 使用方法和以前一致
+
+### 二.使用 useReducer 与 context
+
+在 index 或 app 中提供全局的 redux 与 dispatch
+```typescript jsx
+function isPromise(obj) {
+  return (
+    !!obj &&
+    (typeof obj === "object" || typeof obj === "function") &&
+    typeof obj.then === "function"
+  );
+}
+
+function wrapperDispatch(dispatch) {
+  // 功能和 redux-promise 相同
+  return function (action) {
+    isPromise(action.payload) ?
+      action.payload.then(v => {
+        dispatch({type: action.type, payload: v})
+      }).catch((error) => {
+        dispatch(Object.assign({}, action, {
+          payload: error,
+          error: true
+        }));
+        return Promise.reject(error);
+      })
+      :
+      dispatch(action);
+  };
+}
+
+
+function Wrap(props) {
+  // 确保在 dispatch 后不会刷新APP组件
+  const [state, dispatch] = useReducer(reducers, ReducersValue);
+  console.log('render wrap')
+  return (<MainContext.Provider value={{state: state, dispatch: wrapperDispatch(dispatch)}}>{props.children}</MainContext.Provider>)
+}
+
+function App() {
+  console.log('render  App')
+  return <Wrap>
+    <Router>
+      <Switch>
+        <Route path="/login" component={Login} exact/>
+        <Route path="/" component={MainIndex}/>
+      </Switch>
+    </Router>
+  </Wrap>
+}
+```
+
+具体使用:
+```typescript jsx
+function useDispatch() {
+  // 获取 dispatch
+  const store = useContext(MainContext);
+  return store.dispatch;
+}
+
+function useStoreState(mapState) {
+  //存储 state 且判断是否需要 render
+  const {state:store} = useContext(MainContext);
+
+  const mapStateFn = () => mapState(store);
+
+  const [mappedState, setMappedState] = useState(() => mapStateFn());
+
+  const lastRenderedMappedState = useRef();
+  // Set the last mapped state after rendering.
+  useEffect(() => {
+    lastRenderedMappedState.current = mappedState;
+  });
+
+  useEffect(
+    () => {
+     console.log('useEffect ')
+      const checkForUpdates = () => {
+        const newMappedState = mapStateFn();
+        if (!_.isEqual(newMappedState, lastRenderedMappedState.current)) {
+          setMappedState(newMappedState);
+        }
+      };
+
+      checkForUpdates();
+    },
+    [store, mapState],
+  );
+  return mappedState
+}
+
+// 组件内使用
+const ResourceReducer = useStoreState(state => state.ResourceReducer)
+const dispatch = useDispatch()
+```
+他的功能已经足够了,在使用的地方使用函数即可,很方便  
+但是也有一些不足的地方是在根源上的,即 context,
+在同一个页面中 如果有多个使用 context 的地方    
+那么如果一旦dispatch ,其他的所有地方也会触发render 造成资源的浪费,小项目还好,大项目仍旧不可
+取
+
