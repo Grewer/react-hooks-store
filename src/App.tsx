@@ -1,12 +1,12 @@
 import React from 'react';
 import './App.css';
-import {Count} from "./Count";
-import Modal from "./reducer";
+import {useModal} from "./reducer";
+import Count from "./Count";
 import TodoList from "./ToDoList";
 import PersonInfo from "./personInfo";
 
 function App() {
-  const [state] = Modal.useModal(['countReducer'])
+  const [state] = useModal(['countReducer'])
   console.warn('render App', state)
   return (
     <div className="App">

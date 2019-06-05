@@ -1,9 +1,9 @@
 import React, {useState} from 'react'
-import Modal from "./reducer";
+import {useModal} from "./reducer";
 
 function TodoList() {
   const [inp, setInp] = useState('')
-  const [state, dispatch] = Modal.useModal(['listReducer'])
+  const [state, dispatch] = useModal(['listReducer'])
   console.warn('render todo List', state)
   return <>
     <input type="text" value={inp} onChange={ev => setInp(ev.target.value)}/>

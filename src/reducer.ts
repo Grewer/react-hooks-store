@@ -29,7 +29,7 @@ class Modal {
         console.error('组件销毁', index)
         this.queue.splice(index - 1, 1);
       };
-    }, []);// bug 待解决
+    }, []);
     return [this.value, this.dispatch]
   }
 
@@ -38,14 +38,12 @@ class Modal {
     this.queue.forEach((queue) => {
       const isRender = queue.deps ? queue.deps.some(dep => this.prevValue[dep] !== this.value[dep]) : true
       console.warn('isRender', isRender, this.prevValue, this.value)
-      if (isRender) {
-        queue.setState(this.value)
-      }
+      isRender && queue.setState(this.value)
     });
   }
 }
 
-export default new Modal({
+const modal = new Modal({
   countReducer: function (state = 0, action) {
     console.log('count Reducer', state, action)
     switch (action.type) {
@@ -77,3 +75,5 @@ export default new Modal({
     }
   }
 })
+
+export const useModal = modal.useModal

@@ -1,8 +1,8 @@
 import * as React from 'react';
-import Modal from "./reducer";
+import {useModal} from "./reducer";
 
 function PersonInfo() {
-  const [state, dispatch] = Modal.useModal(['personReducer'])
+  const [state, dispatch] = useModal(['personReducer'])
   console.warn('render person info', state)
   return (<div>
     {JSON.stringify(state.personReducer)}
